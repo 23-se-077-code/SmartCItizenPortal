@@ -1,9 +1,19 @@
 ﻿from pathlib import Path
-BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'django-insecure-npkk#df1f57zlpgl6mx=09egw%bt!@s+^@t(#nz5@xd&_ar79-'
-DEBUG = True
-ALLOWED_HOSTS = []
+import os
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-npkk#df1f57zlpgl6mx=09egw%bt!@s+^@t(#nz5@xd&_ar79-'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+# ✅ FIXED: Allow Vercel domains
+ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
+
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -19,11 +29,12 @@ INSTALLED_APPS = [
     'challan',
     'citizens',
     'formtools',
-    
+    'whitenoise.runserver_nostatic',  # ✅ ADDED: For static files on Vercel
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ✅ ADDED: For static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -34,15 +45,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'smart_portal.urls'
 
-import os
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],  # changed  # IMPORTANT FIX
+        'DIRS': [BASE_DIR / "templates"],  # ✅ FIXED: Correct path
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -57,6 +63,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'smart_portal.wsgi.application'
 
+# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -64,6 +71,7 @@ DATABASES = {
     }
 }
 
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -71,6 +79,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -102,16 +111,23 @@ EASYPAISA_RETURN_URL = "https://yourdomain.com/challan/easypaisa-return/"
 EASYPAISA_SANDBOX_URL = "https://easypaystg.easypaisa.com.pk/easypay-service/rest/v4/..."
 EASYPAISA_LIVE_URL = "https://easypay.easypaisa.com.pk/easypay-service/rest/v4/..."
 
+# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# ✅ FIXED: Static files (for Vercel)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # ✅ ADDED
+
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_URL = '/users/login/'
 
-ALLOWED_HOSTS = ['*']
+# Login URL
+LOGIN_URL = '/users/login/'

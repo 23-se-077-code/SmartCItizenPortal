@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "smart_portal/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "smart_portal/wsgi.py"
+    }
+  ]
+}

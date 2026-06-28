@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Citizen Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gov-green: #1a7a3a;
+            --gov-dark: #0d4a1f;
+            --gov-light: #e8f5e9;
+            --gov-gold: #c5a059;
+        }
+        body {
+            background-color: #f0f5f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background: #0d1b2a;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: #b0c4de;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: #1b3a5c;
+            color: white;
+        }
+        .sidebar .nav-link i {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            text-align: center;
+        }
+        .sidebar .nav-link.text-danger:hover {
+            background: #5c1a1a;
+        }
+        .main-content {
+            padding: 2rem;
+        }
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .card-header {
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+        .btn-success {
+            background-color: var(--gov-green);
+            border-color: var(--gov-green);
+        }
+        .btn-success:hover {
+            background-color: var(--gov-dark);
+            border-color: var(--gov-dark);
+        }
+        .btn-outline-success {
+            color: var(--gov-green);
+            border-color: var(--gov-green);
+        }
+        .btn-outline-success:hover {
+            background-color: var(--gov-green);
+            color: white;
+        }
+        .bg-success {
+            background-color: var(--gov-green) !important;
+        }
+        .text-success {
+            color: var(--gov-green) !important;
+        }
+        .alert-success {
+            background-color: var(--gov-light);
+            border-color: var(--gov-green);
+            color: var(--gov-dark);
+        }
+        .badge-status {
+            background-color: var(--gov-green);
+            color: white;
+        }
+        .service-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+            border-color: var(--gov-green) !important;
+        }
+        .step-indicator .step {
+            display: inline-block;
+            width: 2.5rem;
+            height: 2.5rem;
+            line-height: 2.5rem;
+            text-align: center;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #495057;
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+        .step-indicator .step.active {
+            background: var(--gov-green);
+            color: white;
+        }
+        .step-indicator .step.completed {
+            background: #198754;
+            color: white;
+        }
+        .step-indicator .line {
+            display: inline-block;
+            width: 3rem;
+            height: 2px;
+            background: #ced4da;
+            margin: 0 0.5rem 0.3rem 0;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-md-block sidebar p-0">
+            <div class="p-3">
+                <h4 class="text-white"><i class="bi bi-person-badge"></i> SmartPortal</h4>
+                <hr class="bg-light">
+            </div>
+            <ul class="nav flex-column p-3">
+                {% if user.is_authenticated %}
+                    <!-- Dashboard -->
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <!-- CNIC (only if app exists) -->
+                    {% if 'cnic' in installed_apps %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'cnic' in request.path %}active{% endif %}" href="{% url 'cnic_dashboard' %}">
+                            <i class="bi bi-person-vcard"></i> CNIC
+                        </a>
+                    </li>
+                    {% endif %}
+                    <!-- Passport -->
+                    {% if 'passport' in installed_apps %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'passport' in request.path %}active{% endif %}" href="{% url 'passport_dashboard' %}">
+                            <i class="bi bi-book"></i> Passport
+                        </a>
+                    </li>
+                    {% endif %}
+                    <!-- Voting -->
+                    {% if 'voting' in installed_apps %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'voting' in request.path %}active{% endif %}" href="{% url 'voting_dashboard' %}">
+                            <i class="bi bi-check-circle"></i> Voting
+                        </a>
+                    </li>
+                    {% endif %}
+                    <!-- Challan -->
+                    {% if 'challan' in installed_apps %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'challan' in request.path %}active{% endif %}" href="{% url 'challan:dashboard' %}">
+                            <i class="bi bi-wallet2"></i> Challan
+                        </a>
+                    </li>
+                    {% endif %}
+                    <!-- Complaints -->
+                    {% if 'complaints' in installed_apps %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'complaints' in request.path %}active{% endif %}" href="{% url 'complaints' %}">
+                            <i class="fas fa-exclamation-triangle"></i> Complaints
+                        </a>
+                    </li>
+                    {% endif %}
+                    <!-- Logout -->
+                    <li class="nav-item mt-4">
+                        <a class="nav-link text-danger" href="{% url 'logout' %}">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                {% else %}
+                    <!-- Login / Register for guests -->
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'login' in request.path %}active{% endif %}" href="{% url 'login' %}">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'register' in request.path %}active{% endif %}" href="{% url 'register' %}">
+                            <i class="bi bi-person-plus"></i> Register
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-10 ms-sm-auto px-md-4 main-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

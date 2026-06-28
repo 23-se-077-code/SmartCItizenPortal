@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">🇵🇰 CNIC Application – Step 3 of 3</h4>
+        </div>
+        <div class="card-body">
+            <div class="progress mb-4" style="height:8px;">
+                <div class="progress-bar bg-success" style="width:100%;"></div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" action="{% url 'cnic_apply' %}">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+
+                <!-- Live Photo Capture -->
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-header bg-success bg-opacity-10">
+                        <h6 class="mb-0 text-success">📸 Live Photo</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <video id="video" width="350" autoplay style="background:#000; border-radius:8px; border:2px solid #198754;"></video>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-dark" onclick="startCamera()">📷 Start</button>
+                            <button type="button" class="btn btn-sm btn-success" onclick="capturePhoto()">Capture</button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="retakePhoto()">Retake</button>
+                        </div>
+                        <canvas id="canvas" style="display:none;"></canvas>
+                        <input type="hidden" name="photo" id="photo_data">
+                        <div class="mt-2">
+                            <img id="preview" style="width:100px; display:none; border:2px solid #198754; border-radius:4px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Digital Signature -->
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-header bg-success bg-opacity-10">
+                        <h6 class="mb-0 text-success">✍️ Digital Signature</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <canvas id="signatureCanvas" width="350" height="120" style="border:2px solid #198754; cursor:crosshair; border-radius:4px;"></canvas>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="clearSignature()">Clear</button>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="saveSignature()">Save Signature</button>
+                        </div>
+                        <input type="hidden" name="signature" id="signature_data">
+                        <div class="mt-2">
+                            <img id="signaturePreview" style="width:100px; display:none; border:2px solid #198754; border-radius:4px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fingerprints -->
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-header bg-success bg-opacity-10">
+                        <h6 class="mb-0 text-success">🖐️ Fingerprints</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">{{ form.left_thumb.label }}</label>
+                                {{ form.left_thumb }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">{{ form.right_thumb.label }}</label>
+                                {{ form.right_thumb }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="submit" name="wizard_goto_step" value="{{ wizard.steps.prev }}" class="btn btn-secondary px-4">
+                        ← Previous
+                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success px-4 fw-bold">
+                            ✅ Submit
+                        </button>
+                        <a href="{% url 'cnic_dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Uniform field styling */
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+        padding: 0.5rem 0.75rem;
+        background-color: #f8f9fa;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        background-color: #fff;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #1e3c2c;
+        margin-bottom: 0.25rem;
+    }
+    .card {
+        border-radius: 1rem;
+        border: none;
+    }
+    .card-header.bg-success.bg-opacity-10 {
+        background-color: rgba(25, 135, 84, 0.08) !important;
+        border-bottom: 1px solid rgba(25, 135, 84, 0.1);
+    }
+    .btn-success {
+        background-color: #1a7a3a;
+        border-color: #1a7a3a;
+    }
+    .btn-success:hover {
+        background-color: #145a2a;
+        border-color: #145a2a;
+    }
+    video, #signatureCanvas {
+        max-width: 100%;
+    }
+    /* Green accent for cards */
+    .shadow-sm {
+        box-shadow: 0 0.125rem 0.25rem rgba(25, 135, 84, 0.075) !important;
+    }
+</style>
+
+<script>
+// ==================== CAMERA ====================
+let stream;
+function startCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(s => { stream = s; document.getElementById('video').srcObject = s; })
+        .catch(() => alert('Camera access denied. Allow camera permissions.'));
+}
+function capturePhoto() {
+    let video = document.getElementById('video');
+    let canvas = document.getElementById('canvas');
+    let preview = document.getElementById('preview');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    let data = canvas.toDataURL('image/jpeg', 0.95);
+    document.getElementById('photo_data').value = data;
+    preview.src = data;
+    preview.style.display = 'block';
+}
+function retakePhoto() {
+    document.getElementById('photo_data').value = '';
+    document.getElementById('preview').style.display = 'none';
+}
+
+// ==================== SIGNATURE ====================
+let sigCanvas = document.getElementById('signatureCanvas');
+let sigCtx = sigCanvas.getContext('2d');
+let drawing = false;
+let lastX, lastY;
+
+// Set initial white background
+sigCtx.fillStyle = '#fff';
+sigCtx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
+sigCtx.strokeStyle = '#000';
+sigCtx.lineWidth = 2;
+sigCtx.lineCap = 'round';
+
+function getPos(e) {
+    const rect = sigCanvas.getBoundingClientRect();
+    const scaleX = sigCanvas.width / rect.width;
+    const scaleY = sigCanvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    return { x, y };
+}
+
+sigCanvas.addEventListener('mousedown', (e) => {
+    drawing = true;
+    const pos = getPos(e);
+    lastX = pos.x;
+    lastY = pos.y;
+    sigCtx.beginPath();
+    sigCtx.moveTo(lastX, lastY);
+});
+
+sigCanvas.addEventListener('mousemove', (e) => {
+    if (!drawing) return;
+    const pos = getPos(e);
+    sigCtx.lineTo(pos.x, pos.y);
+    sigCtx.stroke();
+});
+
+sigCanvas.addEventListener('mouseup', () => { drawing = false; });
+sigCanvas.addEventListener('mouseleave', () => { drawing = false; });
+
+function clearSignature() {
+    sigCtx.fillStyle = '#fff';
+    sigCtx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
+    sigCtx.strokeStyle = '#000';
+    sigCtx.lineWidth = 2;
+    document.getElementById('signature_data').value = '';
+    document.getElementById('signaturePreview').style.display = 'none';
+}
+
+function saveSignature() {
+    let data = sigCanvas.toDataURL('image/png');
+    document.getElementById('signature_data').value = data;
+    let preview = document.getElementById('signaturePreview');
+    preview.src = data;
+    preview.style.display = 'block';
+}
+
+// Auto-start camera when page loads
+window.onload = function() {
+    startCamera();
+};
+</script>
+{% endblock %}

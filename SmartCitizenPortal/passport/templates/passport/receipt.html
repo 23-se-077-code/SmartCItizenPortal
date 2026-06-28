@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card p-4 shadow-lg">
+        <div class="text-center">
+            <h2 class="mb-0">PASSPORT APPLICATION RECEIPT</h2>
+            <p class="text-muted">Government of Pakistan – Smart Citizen Portal</p>
+            <hr>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Application ID:</strong> {{ app.application_id }}</p>
+                <p><strong>Applicant Name:</strong> {{ app.full_name }}</p>
+                <p><strong>Father's Name:</strong> {{ app.parents.father_name }}</p>
+                <p><strong>CNIC:</strong> {{ app.cnic }}</p>
+                <p><strong>Date of Birth:</strong> {{ app.date_of_birth|date:"d M Y" }}</p>
+                <p><strong>Gender:</strong> {{ app.get_gender_display }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Application Date:</strong> {{ app.created_at|date:"d M Y, h:i A" }}</p>
+                <p><strong>Passport Type:</strong> {{ app.get_processing_type_display }}</p>
+                <p><strong>Pages:</strong> {{ app.pages }}</p>
+                <p><strong>Category:</strong> {{ app.get_category_display }}</p>
+                <p><strong>Status:</strong>
+                    <span class="badge
+                        {% if app.status == 'APPROVED' %}bg-success
+                        {% elif app.status == 'REJECTED' %}bg-danger
+                        {% elif app.status == 'SUBMITTED' %}bg-primary
+                        {% else %}bg-secondary{% endif %}">
+                        {{ app.get_status_display }}
+                    </span>
+                </p>
+                <p><strong>Total Fee:</strong> <span class="h5 text-success">PKR {{ app.fee }}</span></p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <h5>Permanent Address</h5>
+                <p>
+                    {{ app.address.perm_house }}, {{ app.address.perm_street }}<br>
+                    {{ app.address.perm_area }}, {{ app.address.perm_city }}<br>
+                    {{ app.address.perm_district }}, {{ app.address.perm_province }}<br>
+                    Postal Code: {{ app.address.perm_postal }}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <h5>Contact</h5>
+                <p><strong>Mobile:</strong> {{ app.mobile }}</p>
+                <p><strong>Email:</strong> {{ app.email }}</p>
+                <p><strong>Emergency:</strong> {{ app.emergency_contact_name }} ({{ app.emergency_relationship }}) – {{ app.emergency_contact_number }}</p>
+            </div>
+        </div>
+
+        {% if app.passport_number %}
+        <div class="alert alert-success mt-3">
+            <strong>Passport Generated!</strong> Passport No: {{ app.passport_number }}<br>
+            Issue: {{ app.issue_date|date:"d M Y" }} | Expiry: {{ app.expiry_date|date:"d M Y" }}
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="bi bi-printer"></i> Print Receipt
+            </button>
+            <a href="{% url 'passport_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .navbar, .no-print { display: none !important; }
+    .card { border: none !important; box-shadow: none !important; }
+    body { background: white; }
+}
+</style>
+{% endblock %}

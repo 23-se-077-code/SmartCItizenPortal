@@ -1,0 +1,46 @@
+{% extends 'citizens/base_citizen.html' %}
+
+{% block title %}Citizen Details{% endblock %}
+
+{% block wizard_content %}
+<div class="row">
+    <div class="col-md-8">
+        <h4>{{ citizen.full_name }}</h4>
+        <p><strong>CNIC:</strong> {{ citizen.cnic }}</p>
+        <p><strong>Date of Birth:</strong> {{ citizen.date_of_birth }}</p>
+        <p><strong>Gender:</strong> {{ citizen.get_gender_display }}</p>
+        <p><strong>Marital Status:</strong> {{ citizen.get_marital_status_display }}</p>
+        <p><strong>Phone:</strong> {{ citizen.phone }}</p>
+        <p><strong>Email:</strong> {{ citizen.email }}</p>
+        <p><strong>Status:</strong> <span class="badge bg-primary">{{ citizen.get_status_display }}</span></p>
+    </div>
+    <div class="col-md-4">
+        {% if citizen.photo %}
+            <img src="{{ citizen.photo.url }}" class="img-fluid rounded mb-3" alt="Photo">
+        {% endif %}
+        {% if citizen.fingerprint %}
+            <img src="{{ citizen.fingerprint.url }}" class="img-fluid rounded" alt="Fingerprint">
+        {% endif %}
+    </div>
+</div>
+
+<h5 class="mt-4">Addresses</h5>
+<ul>
+    {% for address in citizen.addresses.all %}
+        <li>{{ address.get_address_type_display }}: {{ address.street }}, {{ address.city }}, {{ address.province }}</li>
+    {% empty %}
+        <li>No addresses on file.</li>
+    {% endfor %}
+</ul>
+
+<h5>Family Members</h5>
+<ul>
+    {% for member in citizen.family_members.all %}
+        <li>{{ member.full_name }} ({{ member.get_relation_type_display }})</li>
+    {% empty %}
+        <li>No family members listed.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'citizens:dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 text-center">
+    <h3>Redirecting to JazzCash...</h3>
+    <p>Please wait, you will be redirected to the payment gateway.</p>
+    <form id="jazzcashForm" method="post" action="{{ jazzcash_url }}">
+        {% csrf_token %}
+        {% for key, value in post_data.items %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endfor %}
+    </form>
+    <button class="btn btn-success" onclick="document.getElementById('jazzcashForm').submit();">Click here if not redirected</button>
+</div>
+<script>
+    document.getElementById('jazzcashForm').submit();
+</script>
+{% endblock %}

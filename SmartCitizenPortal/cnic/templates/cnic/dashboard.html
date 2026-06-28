@@ -1,0 +1,137 @@
+﻿﻿{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Page Title -->
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold text-success">🇵🇰 CNIC Services</h1>
+        <p class="text-muted">Manage your identity card applications and track their status</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width:60px;height:60px;">
+                        <i class="fas fa-file-alt fa-2x"></i>
+                    </div>
+                    <h5 class="text-muted mb-0">Total</h5>
+                    <h2 class="fw-bold">{{ total|default:"0" }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width:60px;height:60px;">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <h5 class="text-muted mb-0">Approved</h5>
+                    <h2 class="fw-bold">{{ approved|default:"0" }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width:60px;height:60px;">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                    <h5 class="text-muted mb-0">Pending</h5>
+                    <h2 class="fw-bold">{{ pending|default:"0" }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <a href="{% url 'cnic_apply' %}" class="btn btn-success btn-lg w-100 py-3 rounded-pill shadow-sm">
+                <i class="fas fa-plus-circle me-2"></i> Apply New CNIC
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="#applications" class="btn btn-outline-success btn-lg w-100 py-3 rounded-pill shadow-sm">
+                <i class="fas fa-list me-2"></i> My Applications
+            </a>
+        </div>
+    </div>
+
+    <!-- Applications List -->
+    <div id="applications" class="card border-0 shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i> My Applications</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if applications %}
+                <div class="list-group list-group-flush">
+                    {% for app in applications %}
+                        <div class="list-group-item d-flex flex-wrap justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">{{ app.full_name }}</h6>
+                                <small class="text-muted">{{ app.application_id }}</small>
+                                <span class="badge bg-secondary ms-2">{{ app.get_application_type_display }}</span>
+                            </div>
+                            <div class="mt-2 mt-sm-0">
+                                <span class="badge 
+                                    {% if app.status == 'APPROVED' %}bg-success
+                                    {% elif app.status == 'REJECTED' %}bg-danger
+                                    {% elif app.status == 'SUBMITTED' %}bg-primary
+                                    {% else %}bg-secondary{% endif %}
+                                    status-badge">
+                                    {{ app.get_status_display }}
+                                </span>
+                                <a href="{% url 'cnic_status' app.id %}" class="btn btn-sm btn-outline-success ms-2">Track</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted">
+                    <i class="fas fa-inbox fa-3x d-block mb-2"></i>
+                    <p>No applications yet.</p>
+                    <a href="{% url 'cnic_apply' %}" class="btn btn-success">Apply Now</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 0.75rem;
+    }
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 2rem;
+    }
+    .btn-success {
+        background-color: #1a7a3a;
+        border-color: #1a7a3a;
+    }
+    .btn-success:hover {
+        background-color: #145a2a;
+        border-color: #145a2a;
+    }
+    .btn-outline-success {
+        color: #1a7a3a;
+        border-color: #1a7a3a;
+    }
+    .btn-outline-success:hover {
+        background-color: #1a7a3a;
+        color: white;
+    }
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .list-group-item:first-child {
+        border-top: none;
+    }
+</style>
+{% endblock %}

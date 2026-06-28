@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold text-success">📍 Select Constituency – {{ assembly.name }}</h1>
+        <p class="text-muted">You can only vote in your assigned constituency. Other constituencies are disabled.</p>
+        <div class="progress mx-auto" style="height:6px; max-width:400px;">
+            <div class="progress-bar bg-success" style="width:75%;"></div>
+        </div>
+        <small class="text-muted">Step 3 of 4</small>
+        {% if allowed %}
+            <div class="alert alert-info d-inline-block mt-2">
+                <i class="fas fa-info-circle me-1"></i> You are assigned to: <strong>{{ allowed.code }}</strong>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} text-center shadow-sm">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" id="constituency-form" action="{% url 'voting_wizard_step' step=3 %}">
+        {% csrf_token %}
+        <div class="row g-4">
+            {% for item in constituencies %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm constituency-card 
+                         {% if item.can_select %}border-success{% else %}opacity-50{% endif %}"
+                         style="cursor: {% if item.can_select %}pointer{% else %}default{% endif %};">
+                        <div class="card-body text-center py-3">
+                            <div class="form-check">
+                                <input class="form-check-input d-none" type="radio" name="constituency_id" 
+                                       value="{{ item.constituency.id }}" 
+                                       id="id_constituency_{{ item.constituency.id }}" 
+                                       {% if not item.can_select %}disabled{% endif %}>
+                                <label class="form-check-label fs-5 fw-semibold" 
+                                       for="id_constituency_{{ item.constituency.id }}">
+                                    <span class="badge bg-success me-2">{{ item.constituency.code }}</span>
+                                    {{ item.constituency.name }}
+                                </label>
+                            </div>
+                            {% if item.has_voted %}
+                                <span class="badge bg-success mt-2">✅ Already Voted</span>
+                            {% elif item.can_select %}
+                                <span class="badge bg-primary mt-2">✅ Available – Click to Vote</span>
+                            {% else %}
+                                <span class="badge bg-secondary mt-2">⛔ Please visit your desired constituency</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 alert alert-warning text-center">No constituencies found for this assembly.</div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'voting_wizard_step' step=2 %}" class="btn btn-secondary btn-lg px-4 rounded-pill">← Previous</a>
+            <a href="{% url 'voting_dashboard' %}" class="btn btn-outline-secondary btn-lg px-4 rounded-pill ms-2">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .constituency-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .constituency-card:hover { transform: translateY(-4px); box-shadow: 0 1rem 2rem rgba(0,0,0,0.08) !important; }
+    .constituency-card .form-check-input { display: none; }
+    .constituency-card .form-check-label { display: block; cursor: pointer; padding: 0.5rem; }
+    .constituency-card.border-success { border: 3px solid #198754 !important; background-color: #f0f9f0; }
+    .constituency-card .badge { font-size: 0.85rem; }
+</style>
+
+<script>
+    document.querySelectorAll('.constituency-card .form-check').forEach(function(el) {
+        const card = el.closest('.constituency-card');
+        const radio = el.querySelector('input[type="radio"]');
+        if (!radio.disabled) {
+            el.addEventListener('click', function(e) {
+                document.querySelectorAll('.constituency-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                radio.checked = true;
+                document.getElementById('constituency-form').submit();
+            });
+        }
+    });
+</script>
+{% endblock %}

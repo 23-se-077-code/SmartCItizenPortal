@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h3 class="mb-0 fw-bold">🔐 Biometric Identity Verification</h3>
+                    <p class="mb-0 text-white-50 small">Please confirm your credentials to gain access to your ballot</p>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} text-center shadow-sm">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" id="verification-form">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="id_date_of_birth" class="form-label fw-bold text-secondary">1. Select Your Date of Birth</label>
+                            <input type="date" name="date_of_birth" id="id_date_of_birth" class="form-control form-control-lg" required>
+                            <small class="text-muted">Must exactly match your registered public documentation profile records.</small>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">2. Upload Official Document Identification Card</label>
+                            <div class="p-3 border rounded bg-light text-center">
+                                <input type="file" name="cnic_photo" id="id_cnic_photo" class="form-control" accept="image/*" required>
+                                <small class="text-muted d-block mt-2">Upload a clear scanned copy or photo of your identification document card.</small>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">3. Live Webcam Biometric Verification</label>
+                            <div class="text-center bg-dark p-3 rounded mb-3 position-relative" style="min-height: 240px;">
+                                <video id="webcam" width="100%" height="auto" autoplay playsinline class="rounded bg-black style-video"></video>
+                                <canvas id="capture-canvas" style="display:none;"></canvas>
+                                <div id="success-checkmark" class="position-absolute top-50 start-50 translate-middle text-success d-none" style="font-size: 5rem;">
+                                    ✅
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" name="live_selfie_data" id="id_live_selfie_data" required>
+
+                            <div class="d-grid gap-2">
+                                <button type="button" id="capture-btn" class="btn btn-primary btn-lg rounded-pill shadow-sm">
+                                    📸 Capture Real-Time Verification Snapshot
+                                </button>
+                                <button type="button" id="retake-btn" class="btn btn-outline-warning btn-sm rounded-pill d-none">
+                                    🔄 Reset & Retake Photo
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" id="submit-form-btn" class="btn btn-success btn-lg py-3 fw-bold shadow rounded-pill" disabled>
+                                Verify Identity & Unlock Ballot →
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .style-video { max-width: 480px; border: 2px solid #343a40; transform: scaleX(-1); }
+</style>
+
+<script>
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('capture-canvas');
+    const captureBtn = document.getElementById('capture-btn');
+    const retakeBtn = document.getElementById('retake-btn');
+    const submitBtn = document.getElementById('submit-form-btn');
+    const hiddenInput = document.getElementById('id_live_selfie_data');
+    const successCheck = document.getElementById('success-checkmark');
+
+    navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+        .then(stream => { video.srcObject = stream; })
+        .catch(err => {
+            alert("Webcam streaming access denied or missing. Check hardware layout permissions.");
+            console.error(err);
+        });
+
+    captureBtn.addEventListener('click', () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataURL = canvas.toDataURL('image/jpeg');
+        hiddenInput.value = dataURL;
+        video.classList.add('d-none');
+        successCheck.classList.remove('d-none');
+        captureBtn.classList.add('d-none');
+        retakeBtn.classList.remove('d-none');
+        submitBtn.removeAttribute('disabled');
+    });
+
+    retakeBtn.addEventListener('click', () => {
+        hiddenInput.value = "";
+        video.classList.remove('d-none');
+        successCheck.classList.add('d-none');
+        captureBtn.classList.remove('d-none');
+        retakeBtn.classList.add('d-none');
+        submitBtn.setAttribute('disabled', 'true');
+    });
+</script>
+{% endblock %}

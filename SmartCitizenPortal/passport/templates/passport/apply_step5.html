@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-3">
+        <h3 class="text-success fw-bold">🛂 Passport Application – Step 5 of 7</h3>
+        <div class="progress mx-auto" style="height:8px; max-width:400px;">
+            <div class="progress-bar bg-success" style="width:71%;"></div>
+        </div>
+        <small class="text-muted">Education, Employment, Travel & Contact</small>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>Please correct the following errors:</strong>
+        <ul class="mb-0">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'passport_apply_step' step=step %}">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="{{ step }}">
+
+        <!-- Education -->
+        <div class="card shadow-lg border-0 mb-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">🎓 Education</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.highest_qualification.label }}</label>
+                        {{ form.highest_qualification }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.institute_name.label }}</label>
+                        {{ form.institute_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.passing_year.label }}</label>
+                        {{ form.passing_year }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.employment_status.label }}</label>
+                        {{ form.employment_status }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.occupation.label }}</label>
+                        {{ form.occupation }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.organization.label }}</label>
+                        {{ form.organization }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.monthly_income.label }}</label>
+                        {{ form.monthly_income }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Travel -->
+        <div class="card shadow-lg border-0 mb-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">✈️ Travel Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.travel_purpose.label }}</label>
+                        {{ form.travel_purpose }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.destination_country.label }}</label>
+                        {{ form.destination_country }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.expected_travel_date.label }}</label>
+                        {{ form.expected_travel_date }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.previous_passport_number.label }}</label>
+                        {{ form.previous_passport_number }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="card shadow-lg border-0 mb-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">📞 Contact Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.mobile.label }}</label>
+                        {{ form.mobile }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.email.label }}</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.emergency_contact_name.label }}</label>
+                        {{ form.emergency_contact_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.emergency_contact_number.label }}</label>
+                        {{ form.emergency_contact_number }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.emergency_relationship.label }}</label>
+                        {{ form.emergency_relationship }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <button type="submit" name="prev" class="btn btn-secondary px-4">← Previous</button>
+            <div>
+                <button type="submit" name="next" class="btn btn-success px-4 fw-bold">Next →</button>
+                <a href="{% url 'passport_dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+<style>/* same as step1 */</style>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-3">
+        <h3 class="text-success fw-bold">🛂 Passport Application – Step 1 of 7</h3>
+        <div class="progress mx-auto" style="height:8px; max-width:400px;">
+            <div class="progress-bar bg-success" style="width:14%;"></div>
+        </div>
+        <small class="text-muted">Personal Information</small>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>Please correct the following errors:</strong>
+        <ul class="mb-0">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" action="{% url 'passport_apply_step' step=step %}">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="{{ step }}">
+
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">👤 Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.full_name.label }}</label>
+                        {{ form.full_name }}
+                        <small class="text-muted">First & Last name will be auto‑filled.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.gender.label }}</label>
+                        {{ form.gender }}
+                    </div>
+                    <!-- hidden first_name / last_name -->
+                    <div style="display:none;">
+                        {{ form.first_name.label_tag }} {{ form.first_name }}
+                        {{ form.last_name.label_tag }} {{ form.last_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.date_of_birth.label }}</label>
+                        {{ form.date_of_birth }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.place_of_birth.label }}</label>
+                        {{ form.place_of_birth }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.nationality.label }}</label>
+                        {{ form.nationality }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.religion.label }}</label>
+                        {{ form.religion }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.marital_status.label }}</label>
+                        {{ form.marital_status }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.blood_group.label }}</label>
+                        {{ form.blood_group }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.height.label }}</label>
+                        {{ form.height }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.eye_color.label }}</label>
+                        {{ form.eye_color }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">{{ form.identification_marks.label }}</label>
+                        {{ form.identification_marks }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.category.label }}</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.processing_type.label }}</label>
+                        {{ form.processing_type }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.pages.label }}</label>
+                        {{ form.pages }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <div></div>
+            <div>
+                <button type="submit" name="next" class="btn btn-success px-4 fw-bold">Next →</button>
+                <a href="{% url 'passport_dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+        padding: 0.5rem 0.75rem;
+        background-color: #f8f9fa;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        background-color: #fff;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #1e3c2c;
+        margin-bottom: 0.25rem;
+    }
+    .card {
+        border-radius: 1rem;
+        border: none;
+    }
+    .btn-success {
+        background-color: #1a7a3a;
+        border-color: #1a7a3a;
+    }
+    .btn-success:hover {
+        background-color: #145a2a;
+        border-color: #145a2a;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fullNameInput = document.querySelector('input[name="full_name"]');
+    const firstNameInput = document.querySelector('input[name="first_name"]');
+    const lastNameInput = document.querySelector('input[name="last_name"]');
+    fullNameInput.addEventListener('input', function() {
+        const parts = this.value.trim().split(' ');
+        firstNameInput.value = parts[0] || '';
+        lastNameInput.value = parts.slice(1).join(' ') || '';
+    });
+});
+</script>
+{% endblock %}

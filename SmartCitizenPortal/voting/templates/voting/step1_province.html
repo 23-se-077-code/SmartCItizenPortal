@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold text-success">🗳️ Select Your Province</h1>
+        <p class="text-muted">Click your province to proceed.</p>
+        <div class="progress mx-auto" style="height:6px; max-width:400px;">
+            <div class="progress-bar bg-success" style="width:25%;"></div>
+        </div>
+        <small class="text-muted">Step 1 of 4</small>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} text-center shadow-sm">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" id="province-form" action="{% url 'voting_wizard_step' step=1 %}">
+        {% csrf_token %}
+        <div class="row g-4">
+            {% for province in form.fields.province.queryset %}
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm province-card" style="cursor:pointer; transition:0.3s;">
+                        <div class="card-body text-center py-4">
+                            <div class="form-check">
+                                <input class="form-check-input d-none" type="radio" name="province" value="{{ province.id }}" id="id_province_{{ province.id }}" required>
+                                <label class="form-check-label fs-5 fw-semibold" for="id_province_{{ province.id }}">
+                                    <span class="d-block display-3 mb-2">
+                                        {% if province.code == 'IS' %}🏛️
+                                        {% elif province.code == 'PB' %}🌾
+                                        {% elif province.code == 'SD' %}🌊
+                                        {% elif province.code == 'KP' %}🏔️
+                                        {% elif province.code == 'BL' %}🏜️
+                                        {% elif province.code == 'GB' %}⛰️
+                                        {% elif province.code == 'AJK' %}🌲
+                                        {% endif %}
+                                    </span>
+                                    {{ province.name }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 alert alert-warning text-center">No provinces found. Run seed command.</div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'voting_dashboard' %}" class="btn btn-outline-secondary btn-lg px-4 py-3 rounded-pill">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .province-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .province-card:hover { transform: translateY(-5px); box-shadow: 0 1rem 2rem rgba(0,0,0,0.08) !important; }
+    .province-card .form-check-input { display: none; }
+    .province-card .form-check-label { display: block; cursor: pointer; padding: 0.5rem; }
+    .province-card.selected { border: 3px solid #198754; background-color: #f0f9f0; }
+</style>
+
+<script>
+    document.querySelectorAll('.province-card .form-check').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            document.querySelectorAll('.province-card').forEach(c => c.classList.remove('selected'));
+            this.closest('.province-card').classList.add('selected');
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+            document.getElementById('province-form').submit();
+        });
+    });
+</script>
+{% endblock %}

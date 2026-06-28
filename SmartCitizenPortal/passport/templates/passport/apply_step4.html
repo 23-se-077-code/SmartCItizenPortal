@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-3">
+        <h3 class="text-success fw-bold">🛂 Passport Application – Step 4 of 7</h3>
+        <div class="progress mx-auto" style="height:8px; max-width:400px;">
+            <div class="progress-bar bg-success" style="width:57%;"></div>
+        </div>
+        <small class="text-muted">Address Details</small>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>Please correct the following errors:</strong>
+        <ul class="mb-0">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'passport_apply_step' step=step %}">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="{{ step }}">
+
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">🏠 Permanent Address</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.perm_house.label }}</label>
+                        {{ form.perm_house }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.perm_street.label }}</label>
+                        {{ form.perm_street }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.perm_area.label }}</label>
+                        {{ form.perm_area }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.perm_city.label }}</label>
+                        {{ form.perm_city }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.perm_district.label }}</label>
+                        {{ form.perm_district }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.perm_province.label }}</label>
+                        {{ form.perm_province }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.perm_postal.label }}</label>
+                        {{ form.perm_postal }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-lg border-0 mt-3">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">📍 Current Address</h5>
+                <div class="form-check form-switch">
+                    {{ form.same_as_permanent }}
+                    <label class="form-check-label" for="id_same_as_permanent">Same as Permanent</label>
+                </div>
+            </div>
+            <div class="card-body" id="currentAddressFields">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.curr_house.label }}</label>
+                        {{ form.curr_house }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.curr_street.label }}</label>
+                        {{ form.curr_street }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.curr_area.label }}</label>
+                        {{ form.curr_area }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.curr_city.label }}</label>
+                        {{ form.curr_city }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.curr_district.label }}</label>
+                        {{ form.curr_district }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.curr_province.label }}</label>
+                        {{ form.curr_province }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.curr_postal.label }}</label>
+                        {{ form.curr_postal }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <button type="submit" name="prev" class="btn btn-secondary px-4">← Previous</button>
+            <div>
+                <button type="submit" name="next" class="btn btn-success px-4 fw-bold">Next →</button>
+                <a href="{% url 'passport_dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.querySelector('input[name="same_as_permanent"]');
+    const currentDiv = document.getElementById('currentAddressFields');
+    function toggle() {
+        currentDiv.style.display = checkbox.checked ? 'none' : 'block';
+    }
+    checkbox.addEventListener('change', toggle);
+    toggle();
+});
+</script>
+<style>/* same as step1 */</style>
+{% endblock %}

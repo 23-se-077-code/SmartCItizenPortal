@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">🔍 Application Status – {{ app.application_id }}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Applicant:</strong> {{ app.full_name }}</p>
+                    <p><strong>CNIC:</strong> {{ app.cnic }}</p>
+                    <p><strong>Status:</strong>
+                        <span class="badge
+                            {% if app.status == 'APPROVED' %}bg-success
+                            {% elif app.status == 'REJECTED' %}bg-danger
+                            {% elif app.status == 'SUBMITTED' %}bg-primary
+                            {% else %}bg-secondary{% endif %}
+                            status-badge">
+                            {{ app.get_status_display }}
+                        </span>
+                    </p>
+                    {% if app.passport_number %}
+                    <p><strong>Passport No:</strong> {{ app.passport_number }}</p>
+                    <p><strong>Issue:</strong> {{ app.issue_date|date:"d M Y" }}</p>
+                    <p><strong>Expiry:</strong> {{ app.expiry_date|date:"d M Y" }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {% if app.qr_code %}
+                    <img src="{{ app.qr_code.url }}" style="width:150px; border:2px solid #198754; border-radius:8px;">
+                    <p><small class="text-muted">QR Code</small></p>
+                    {% endif %}
+                </div>
+            </div>
+            <hr>
+            <h5>Timeline</h5>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-check-circle text-success me-2"></i> Submitted</span>
+                    <span class="text-muted">{{ app.created_at|date:"d M Y, H:i" }}</span>
+                </li>
+                {% for log in logs %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-spinner text-primary me-2"></i> {{ log.get_status_display }}</span>
+                    <span class="text-muted">{{ log.created_at|date:"d M Y, H:i" }}</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No further logs.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <a href="{% url 'passport_dashboard' %}" class="btn btn-secondary mt-3">← Back to Dashboard</a>
+</div>
+<style>
+    .status-badge { font-size: 0.9rem; padding: 0.4rem 0.8rem; border-radius: 2rem; }
+</style>
+{% endblock %}

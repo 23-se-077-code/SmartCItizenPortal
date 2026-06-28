@@ -1,0 +1,118 @@
+{% extends 'citizens/base_citizen.html' %}
+{% load static %}
+
+{% block wizard_content %}
+<form method="post" enctype="multipart/form-data" id="wizardForm">
+    {% csrf_token %}
+    {{ wizard.management_form }}
+
+    <!-- Step Progress -->
+    <div class="step-progress d-flex justify-content-between mb-4">
+        <div class="step {% if wizard.steps.step1 > 0 %}completed{% endif %} {% if wizard.steps.current == '0' %}active{% endif %}">1. Personal Details</div>
+        <div class="step {% if wizard.steps.step1 > 1 %}completed{% endif %} {% if wizard.steps.current == '1' %}active{% endif %}">2. Address Details</div>
+        <div class="step {% if wizard.steps.step1 > 2 %}completed{% endif %} {% if wizard.steps.current == '2' %}active{% endif %}">3. Family Details</div>
+    </div>
+
+    <!-- Step Content -->
+    <div class="step-content">
+        {% if wizard.form.forms %}
+            {{ wizard.form.management_form }}
+            {% for form in wizard.form.forms %}
+                {{ form.as_p }}
+            {% endfor %}
+        {% else %}
+            {{ wizard.form.as_p }}
+        {% endif %}
+    </div>
+
+    <!-- Biometric Capture (Only on last step) -->
+    {% if wizard.steps.current == '2' %}
+    <div class="biometric-section mt-4">
+        <h5>Biometric Verification</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label">Live Face Photo</label>
+                <video id="faceCamera" class="camera-feed" autoplay></video>
+                <canvas id="faceCanvas" style="display:none;"></canvas>
+                <button type="button" class="btn btn-secondary mt-2" onclick="captureFace()">Capture Face</button>
+                <input type="hidden" id="face_image_base64" name="face_image_base64">
+                <div id="facePreview" class="biometric-preview"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Fingerprint (Camera Capture)</label>
+                <video id="fingerCamera" class="camera-feed" autoplay></video>
+                <canvas id="fingerCanvas" style="display:none;"></canvas>
+                <button type="button" class="btn btn-secondary mt-2" onclick="captureFingerprint()">Capture Fingerprint</button>
+                <input type="hidden" id="fingerprint_image_base64" name="fingerprint_image_base64">
+                <div id="fingerPreview" class="biometric-preview"></div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons mt-4">
+        {% if wizard.steps.prev %}
+            <button class="btn btn-secondary" type="submit" name="wizard_goto_step" value="{{ wizard.steps.prev }}">← Previous</button>
+        {% endif %}
+        {% if wizard.steps.next %}
+            <button class="btn btn-primary" type="submit">Next →</button>
+        {% else %}
+            <button class="btn btn-success" type="submit">Submit Application</button>
+        {% endif %}
+    </div>
+</form>
+
+<!-- Camera Scripts -->
+<script>
+    let faceStream = null, fingerStream = null;
+
+    // Initialize face camera
+    if (document.getElementById('faceCamera')) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                faceStream = stream;
+                document.getElementById('faceCamera').srcObject = stream;
+            }).catch(err => console.warn("Face camera error:", err));
+    }
+
+    // Initialize fingerprint camera (second feed)
+    if (document.getElementById('fingerCamera')) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                fingerStream = stream;
+                document.getElementById('fingerCamera').srcObject = stream;
+            }).catch(err => console.warn("Fingerprint camera error:", err));
+    }
+
+    function captureFace() {
+        let video = document.getElementById('faceCamera');
+        let canvas = document.getElementById('faceCanvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        let dataURL = canvas.toDataURL('image/png');
+        document.getElementById('face_image_base64').value = dataURL;
+        let preview = document.getElementById('facePreview');
+        preview.innerHTML = `<strong>Captured Face</strong><br><img src="${dataURL}" style="max-width: 150px;">`;
+    }
+
+    function captureFingerprint() {
+        let video = document.getElementById('fingerCamera');
+        let canvas = document.getElementById('fingerCanvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        let dataURL = canvas.toDataURL('image/png');
+        document.getElementById('fingerprint_image_base64').value = dataURL;
+        let preview = document.getElementById('fingerPreview');
+        preview.innerHTML = `<strong>Captured Fingerprint</strong><br><img src="${dataURL}" style="max-width: 150px;">`;
+    }
+
+    // Stop streams on page unload
+    window.addEventListener('beforeunload', () => {
+        if (faceStream) faceStream.getTracks().forEach(track => track.stop());
+        if (fingerStream) fingerStream.getTracks().forEach(track => track.stop());
+    });
+</script>
+{% endblock %}

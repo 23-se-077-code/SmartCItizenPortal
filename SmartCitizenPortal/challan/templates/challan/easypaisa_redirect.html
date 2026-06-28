@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 text-center">
+    <h3>Redirecting to EasyPaisa...</h3>
+    <p>Please wait, you will be redirected to the payment gateway.</p>
+    <a href="{% url 'challan:pay_bill_step1' %}" class="btn btn-secondary">Cancel</a>
+</div>
+<script>
+    // If the response gives a redirect URL, it will redirect automatically from the view.
+    // This is just a fallback page.
+</script>
+{% endblock %}

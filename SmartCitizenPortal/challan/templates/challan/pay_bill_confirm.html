@@ -1,0 +1,41 @@
+{% extends "challan/base_challan.html" %}
+{% block challan_content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-success text-white">
+        <h5><i class="fas fa-check-circle me-2"></i>Confirm Bill Payment</h5>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6"><strong>Consumer:</strong> {{ bill.consumer_name }}</div>
+            <div class="col-md-6"><strong>Consumer ID:</strong> {{ bill.consumer_number }}</div>
+            <div class="col-md-6"><strong>Category:</strong> {{ bill.category.name }}</div>
+            <div class="col-md-6"><strong>Amount:</strong> <span class="text-success fw-bold">Rs. {{ bill.amount }}</span></div>
+            <div class="col-md-6"><strong>Due Date:</strong> {{ bill.due_date|date:"d M Y" }}</div>
+            <div class="col-md-12">
+                <strong>Bill Image:</strong>
+                {% if bill.bill_image %}
+                    <a href="{{ bill.bill_image.url }}" target="_blank"><img src="{{ bill.bill_image.url }}" class="img-thumbnail" style="max-width:200px;"></a>
+                {% else %}
+                    <span class="text-muted">Not uploaded</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i> This is a simulation. In production, a payment gateway will process your transaction.
+        </div>
+        
+        <!-- Payment Gateway Options -->
+        <div class="mb-3 text-center">
+            <h6>Choose Payment Method:</h6>
+            <a href="{% url 'challan:jazzcash_bill' bill.id %}" class="btn btn-outline-success me-2">Pay with JazzCash</a>
+            <a href="{% url 'challan:easypaisa_bill' bill.id %}" class="btn btn-outline-primary">Pay with EasyPaisa</a>
+        </div>
+
+        <form method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5">Confirm & Pay (Simulation)</button>
+            <a href="{% url 'challan:bill_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">🇵🇰 CNIC Application – Step 2 of 3</h4>
+        </div>
+        <div class="card-body">
+            <div class="progress mb-4" style="height:8px;">
+                <div class="progress-bar bg-success" style="width:66%;"></div>
+            </div>
+
+            <form method="post" action="{% url 'cnic_apply' %}" id="step2Form">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+
+                <!-- CNIC Number & Contact -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.cnic_number.label }}</label>
+                        {{ form.cnic_number }}
+                        {% if form.cnic_number.errors %}
+                            <div class="text-danger small">{{ form.cnic_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.application_type.label }}</label>
+                        {{ form.application_type }}
+                        {% if form.application_type.errors %}
+                            <div class="text-danger small">{{ form.application_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Address Section -->
+                <div class="row g-3 mt-2">
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">{{ form.permanent_address.label }}</label>
+                        {{ form.permanent_address }}
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.current_address.label }}</label>
+                        {{ form.current_address }}
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check form-check-inline mt-3">
+                            {{ form.same_as_permanent }}
+                            <label class="form-check-label" for="{{ form.same_as_permanent.id_for_label }}">
+                                <small>Same as permanent</small>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="copyAddress()">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- City, District, Province, Postal -->
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.city.label }}</label>
+                        {{ form.city }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.district_address.label }}</label>
+                        {{ form.district_address }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.province.label }}</label>
+                        {{ form.province }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.postal_code.label }}</label>
+                        {{ form.postal_code }}
+                    </div>
+                </div>
+
+                <!-- Contact -->
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.phone.label }}</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.emergency_contact.label }}</label>
+                        {{ form.emergency_contact }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">{{ form.email.label }}</label>
+                        {{ form.email }}
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="submit" name="wizard_goto_step" value="{{ wizard.steps.prev }}" class="btn btn-secondary px-4 py-2">
+                        ← Previous
+                    </button>
+                    <div>
+                        <button type="submit" class="btn btn-success px-4 py-2 fw-bold">
+                            Next →
+                        </button>
+                        <a href="{% url 'cnic_dashboard' %}" class="btn btn-outline-secondary px-4 py-2 ms-2">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+        padding: 0.5rem 0.75rem;
+        background-color: #f8f9fa;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        background-color: #fff;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #1e3c2c;
+        margin-bottom: 0.25rem;
+    }
+    .card {
+        border-radius: 1rem;
+        border: none;
+    }
+    .btn-success {
+        background-color: #1a7a3a;
+        border-color: #1a7a3a;
+    }
+    .btn-success:hover {
+        background-color: #145a2a;
+        border-color: #145a2a;
+    }
+    .form-check-input:checked {
+        background-color: #1a7a3a;
+        border-color: #1a7a3a;
+    }
+</style>
+
+<script>
+function copyAddress() {
+    const permanent = document.getElementById('{{ form.permanent_address.id_for_label }}');
+    const current = document.getElementById('{{ form.current_address.id_for_label }}');
+    if (permanent && current) {
+        current.value = permanent.value;
+        // Also check the checkbox if addresses match
+        const sameCheck = document.getElementById('{{ form.same_as_permanent.id_for_label }}');
+        if (sameCheck) {
+            sameCheck.checked = (permanent.value === current.value);
+        }
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,219 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Welcome Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #1a7a3a 0%, #2d8a2d 100%); border-radius: 1rem;">
+                <div class="card-body p-4 p-md-5 text-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="display-5 fw-bold">Welcome back, {{ request.user.username }}! 🇵🇰</h1>
+                            <p class="lead mb-0">Your one‑stop digital platform for government services.</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            {% if profile.is_verified %}
+                                <span class="badge bg-light text-success px-4 py-2 rounded-pill">✅ Verified Citizen</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark px-4 py-2 rounded-pill">⏳ Verification Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px; height:50px;">
+                        <i class="fas fa-check-circle fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Status</h6>
+                        <h5 class="mb-0 fw-bold">{% if profile.is_verified %}Verified{% else %}Pending{% endif %}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px; height:50px;">
+                        <i class="fas fa-calendar-alt fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Age</h6>
+                        <h5 class="mb-0 fw-bold">{{ profile.age|default:"Not set" }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px; height:50px;">
+                        <i class="fas fa-map-marker-alt fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Province</h6>
+                        <h5 class="mb-0 fw-bold">{{ profile.province|default:"Not set" }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px; height:50px;">
+                        <i class="fas fa-id-card fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">CNIC</h6>
+                        <h5 class="mb-0 fw-bold">{{ profile.cnic|default:"Not provided"|truncatechars:10 }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content: Profile + Services -->
+    <div class="row g-4">
+        <!-- Profile Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i> Profile</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if profile.selfie %}
+                            <img src="{{ profile.selfie.url }}" class="rounded-circle img-fluid" style="width:120px; height:120px; object-fit:cover; border:3px solid #28a745;">
+                        {% else %}
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width:120px; height:120px; border:3px solid #28a745;">
+                                <span style="font-size: 4rem;">👤</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <h4 class="text-success">{{ request.user.username }}</h4>
+                    <hr>
+                    <div class="text-start">
+                        <p><strong>CNIC:</strong> {{ profile.cnic|default:"<span class='text-muted'>Not provided</span>"|safe }}</p>
+                        <p><strong>Phone:</strong> {{ profile.phone|default:"Not provided" }}</p>
+                        <p><strong>Date of Birth:</strong> {{ profile.date_of_birth|date:"d M Y"|default:"Not set" }}</p>
+                        <p><strong>Age:</strong> {{ profile.age|default:"Not set" }}</p>
+                        <p><strong>Province:</strong> {{ profile.province|default:"Not set" }}</p>
+                        <p><strong>Verified:</strong>
+                            {% if profile.is_verified %}
+                                <span class="badge bg-success">✅ Verified</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">⏳ Pending</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Cards -->
+        <div class="col-lg-8">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <a href="{% url 'cnic_dashboard' %}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100 service-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-id-card" style="font-size: 3.5rem; color: #28a745;"></i>
+                                <h5 class="mt-3 text-success">CNIC</h5>
+                                <p class="text-muted small">Manage your identity card</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'passport_dashboard' %}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100 service-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-passport" style="font-size: 3.5rem; color: #28a745;"></i>
+                                <h5 class="mt-3 text-success">Passport</h5>
+                                <p class="text-muted small">Apply &amp; track passport</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'voting_dashboard' %}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100 service-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-vote-yea" style="font-size: 3.5rem; color: #28a745;"></i>
+                                <h5 class="mt-3 text-success">Voting</h5>
+                                <p class="text-muted small">Cast your vote</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'challan:dashboard' %}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100 service-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-invoice" style="font-size: 3.5rem; color: #28a745;"></i>
+                                <h5 class="mt-3 text-success">Challan</h5>
+                                <p class="text-muted small">Pay your challans</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'complaints' %}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100 service-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 3.5rem; color: #28a745;"></i>
+                                <h5 class="mt-3 text-success">Complaints</h5>
+                                <p class="text-muted small">File &amp; track complaints</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'logout' %}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100 service-card" style="background: #f8f9fa;">
+                            <div class="card-body text-center">
+                                <i class="fas fa-sign-out-alt" style="font-size: 3.5rem; color: #dc3545;"></i>
+                                <h5 class="mt-3 text-danger">Logout</h5>
+                                <p class="text-muted small">Sign out securely</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .service-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
+    .service-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 1rem 2rem rgba(0,0,0,0.08) !important;
+        border-color: #28a745 !important;
+    }
+    .btn-success {
+        background-color: #1a7a3a;
+        border-color: #1a7a3a;
+    }
+    .btn-success:hover {
+        background-color: #145a2a;
+        border-color: #145a2a;
+    }
+    .card {
+        border-radius: 0.75rem;
+    }
+</style>
+{% endblock %}

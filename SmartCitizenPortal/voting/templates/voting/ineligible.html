@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="alert alert-danger">
+        <h4>You are not eligible to vote</h4>
+        <p>You must be 18 years or older to participate.</p>
+        <p>If you believe this is an error, please <a href="{% url 'update_profile' %}">update your date of birth</a>.</p>
+        <a href="{% url 'voting_dashboard' %}" class="btn btn-secondary">Go Back</a>
+    </div>
+</div>
+{% endblock %}

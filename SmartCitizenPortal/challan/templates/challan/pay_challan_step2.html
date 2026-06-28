@@ -1,0 +1,66 @@
+{% extends "challan/base_challan.html" %}
+{% block challan_content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-success text-white">
+        <h5><i class="fas fa-edit me-2"></i>Enter Challan Details – {{ category.name }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" action="">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Challan Number</label>
+                        {{ form.challan_number }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Citizen Name</label>
+                        {{ form.citizen_name }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">CNIC</label>
+                        {{ form.cnic }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Area (optional)</label>
+                        {{ form.area }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Amount (PKR)</label>
+                        {{ form.amount }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Due Date</label>
+                        {{ form.due_date }}
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Description (optional)</label>
+                {{ form.description }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Upload Payment Screenshot (optional)</label>
+                {{ form.payment_screenshot }}
+                <small class="text-muted">Upload proof of payment (optional).</small>
+            </div>
+            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5">Proceed to Payment</button>
+            <a href="{% url 'challan:pay_challan_step1' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Change Type</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

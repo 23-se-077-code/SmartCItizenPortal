@@ -1,0 +1,93 @@
+{% extends "challan/base_challan.html" %}
+{% load static %}
+
+{% block challan_content %}
+<!-- Welcome -->
+<div class="text-center mb-5">
+    <h1 class="display-4 text-success fw-bold">💳 Welcome to the Payment Portal</h1>
+    <p class="lead text-muted">Easily pay your bills, challans, and fines online in one place.</p>
+</div>
+
+<!-- Main Options -->
+<div class="row g-4 justify-content-center">
+    <div class="col-md-5">
+        <div class="card border-0 shadow-lg h-100 text-center">
+            <div class="card-body p-5">
+                <i class="fas fa-file-invoice fa-5x text-success mb-3"></i>
+                <h3 class="card-title text-success">Pay Bills</h3>
+                <p class="card-text text-muted">Electricity, Water, Sui Gas, Internet, and more.</p>
+                <a href="{% url 'challan:pay_bill_step1' %}" class="btn btn-success btn-lg rounded-pill px-5">View Bills</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card border-0 shadow-lg h-100 text-center">
+            <div class="card-body p-5">
+                <i class="fas fa-gavel fa-5x text-success mb-3"></i>
+                <h3 class="card-title text-success">Pay Challans</h3>
+                <p class="card-text text-muted">Traffic fines, license fees, court challans, and more.</p>
+                <a href="{% url 'challan:pay_challan_step1' %}" class="btn btn-success btn-lg rounded-pill px-5">View Challans</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row mt-5 g-3">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-success text-white text-center">
+            <div class="card-body">
+                <h6>Unpaid Bills</h6>
+                <h2>{{ bills.count }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-success text-white text-center" style="background-color: #145a2a !important;">
+            <div class="card-body">
+                <h6>Unpaid Challans</h6>
+                <h2>{{ challans.count }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-secondary text-white text-center">
+            <div class="card-body">
+                <h6>Total Paid</h6>
+                <h2>Rs. {{ total_paid }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Payments -->
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-success text-white">
+        <i class="fas fa-history me-2"></i> Recent Payments
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in recent_payments %}
+                    <tr>
+                        <td>{{ payment.transaction_id }}</td>
+                        <td>{{ payment.get_payment_type_display }}</td>
+                        <td>Rs. {{ payment.amount }}</td>
+                        <td>{{ payment.paid_at|date:"d M Y, h:i A" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted">No payments yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

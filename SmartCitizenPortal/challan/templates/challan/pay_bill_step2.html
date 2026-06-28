@@ -1,0 +1,63 @@
+{% extends "challan/base_challan.html" %}
+{% block challan_content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-success text-white">
+        <h5><i class="fas fa-edit me-2"></i>Enter Bill Details – {{ category.name }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" action="">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Consumer ID</label>
+                        {{ form.consumer_number }}
+                        {% if form.consumer_number.errors %}
+                            <div class="text-danger small">{{ form.consumer_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Consumer Name</label>
+                        {{ form.consumer_name }}
+                        {% if form.consumer_name.errors %}
+                            <div class="text-danger small">{{ form.consumer_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Amount (PKR)</label>
+                        {{ form.amount }}
+                        {% if form.amount.errors %}
+                            <div class="text-danger small">{{ form.amount.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Due Date</label>
+                        {{ form.due_date }}
+                        {% if form.due_date.errors %}
+                            <div class="text-danger small">{{ form.due_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Upload Bill Photo (optional – for verification)</label>
+                {{ form.bill_image }}
+                <small class="text-muted">Upload a clear photo or screenshot of your bill (optional).</small>
+                {% if form.bill_image.errors %}
+                    <div class="text-danger small">{{ form.bill_image.errors }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5">Proceed to Payment</button>
+            <a href="{% url 'challan:pay_bill_step1' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Change Category</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

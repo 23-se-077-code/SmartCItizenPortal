@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-success text-white rounded-top-4 py-3">
+                    <h3 class="mb-0 text-center">📢 File a Complaint</h3>
+                    <p class="mb-0 text-white-50 small">We value your feedback – we'll respond within 2 working days</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-success mb-4">
+                        <i class="fas fa-info-circle"></i> All complaints are confidential and handled with care.
+                    </div>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-secondary">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill shadow">
+                                <i class="fas fa-paper-plane"></i> Submit Complaint
+                            </button>
+                            <a href="{% url 'complaints' %}" class="btn btn-outline-secondary rounded-pill">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Acknowledgment card -->
+            <div class="card mt-4 border-0 bg-light shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-handshake fa-2x text-success mb-2"></i>
+                    <p>After submission, you'll receive a <strong>Reference Number</strong>. Use it to track your complaint status.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

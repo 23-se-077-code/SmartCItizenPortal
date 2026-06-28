@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold text-success">✅ Select Your Candidate</h1>
+        <p class="text-muted">Click a candidate card, then press “Cast Vote” to finalise your ballot.</p>
+        <div class="progress mx-auto" style="height:6px; max-width:400px;">
+            <div class="progress-bar bg-success" style="width:100%;"></div>
+        </div>
+        <small class="text-muted">Step 4 of 4 – Final</small>
+    </div>
+
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Please correct the following errors:</strong>
+            {{ form.errors }}
+        </div>
+    {% endif %}
+
+    <form method="post" id="vote-form" action="{% url 'voting_wizard_step' step=4 %}">
+        {% csrf_token %}
+        <div class="row g-4">
+            {% for candidate in form.fields.candidate.queryset %}
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm candidate-card" style="cursor:pointer; transition:0.3s;">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                {% if candidate.photo %}
+                                    <img src="{{ candidate.photo.url }}" class="rounded-circle img-fluid" style="width:120px; height:120px; object-fit:cover; border:3px solid #198754;">
+                                {% else %}
+                                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width:120px; height:120px; font-size:3.5rem;">👤</div>
+                                {% endif %}
+                            </div>
+                            {% if candidate.symbol %}
+                                <img src="{{ candidate.symbol.url }}" style="width:40px; height:40px;" class="mb-2">
+                            {% endif %}
+                            <h5 class="fw-bold">{{ candidate.name }}</h5>
+                            <p class="text-muted">{{ candidate.party }}</p>
+                            <!-- Visible radio input with custom styling -->
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="candidate" value="{{ candidate.id }}" id="id_candidate_{{ candidate.id }}" required>
+                                <label class="form-check-label" for="id_candidate_{{ candidate.id }}">
+                                    Vote for {{ candidate.name }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 alert alert-warning text-center">No candidates available.</div>
+            {% endfor %}
+        </div>
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'voting_wizard_step' step=3 %}" class="btn btn-secondary btn-lg px-4 rounded-pill">← Previous</a>
+            <div>
+                <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow">✅ Cast Vote</button>
+                <a href="{% url 'voting_dashboard' %}" class="btn btn-outline-secondary btn-lg px-4 rounded-pill ms-2">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .candidate-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .candidate-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 1rem 2.5rem rgba(0,0,0,0.1) !important;
+    }
+    .candidate-card .form-check-input {
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-right: 0.5rem;
+    }
+    .candidate-card .form-check-label {
+        cursor: pointer;
+    }
+    .candidate-card.selected {
+        border: 3px solid #198754;
+        background-color: #f0f9f0;
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.candidate-card').forEach(function(card) {
+        const radio = card.querySelector('input[type="radio"]');
+        const label = card.querySelector('.form-check-label');
+        // Click on card toggles selection
+        card.addEventListener('click', function(e) {
+            // Prevent double-trigger if clicked on radio or label
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
+            radio.checked = true;
+            document.querySelectorAll('.candidate-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+        });
+        // Also allow click on radio/label to work normally
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.candidate-card').forEach(c => c.classList.remove('selected'));
+            if (this.checked) {
+                card.classList.add('selected');
+            }
+        });
+    });
+</script>
+{% endblock %}

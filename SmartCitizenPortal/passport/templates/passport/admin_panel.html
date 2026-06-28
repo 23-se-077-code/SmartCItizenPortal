@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Passport Admin Panel</h2>
+    <table class="table table-striped">
+        <theadclass="table-success" >
+            <tr>
+                <th>ID</th>
+                <th>Applicant</th>
+                <th>CNIC</th>
+                <th>Type</th>
+                <th>Fee</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.application_id }}</td>
+                <td>{{ app.full_name }}</td>
+                <td>{{ app.cnic }}</td>
+                <td>{{ app.get_processing_type_display }}</td>
+                <td>{{ app.fee }}</td>
+                <td>{{ app.get_status_display }}</td>
+                <td>
+                    <a href="{% url 'passport_track' app.id %}" class="btn btn-sm btn-info">View</a>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            Change Status
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% for status_code, status_label in app.STATUS_CHOICES %}
+                            <li><a class="dropdown-item" href="{% url 'passport_update_status' app.id status_code %}">{{ status_label }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

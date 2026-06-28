@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-3">
+        <h3 class="text-success fw-bold">🛂 Passport Application – Step 6 of 7</h3>
+        <div class="progress mx-auto" style="height:8px; max-width:400px;">
+            <div class="progress-bar bg-success" style="width:86%;"></div>
+        </div>
+        <small class="text-muted">Required & Optional Documents</small>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>Please correct the following errors:</strong>
+        <ul class="mb-0">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" action="{% url 'passport_apply_step' step=step %}">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="{{ step }}">
+
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">📎 Required Documents</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.cnic_front.label }}</label>
+                        {{ form.cnic_front }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.cnic_back.label }}</label>
+                        {{ form.cnic_back }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.photo.label }}</label>
+                        {{ form.photo }}
+                        <small class="text-muted">Passport size photo</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.birth_cert.label }}</label>
+                        {{ form.birth_cert }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.utility_bill.label }}</label>
+                        {{ form.utility_bill }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-lg border-0 mt-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">📎 Optional Documents</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.prev_passport.label }}</label>
+                        {{ form.prev_passport }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.marriage_cert.label }}</label>
+                        {{ form.marriage_cert }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.edu_cert.label }}</label>
+                        {{ form.edu_cert }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <button type="submit" name="prev" class="btn btn-secondary px-4">← Previous</button>
+            <div>
+                <button type="submit" name="next" class="btn btn-success px-4 fw-bold">Next →</button>
+                <a href="{% url 'passport_dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+<style>/* same as step1 */</style>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #1a7a3a 0%, #2d8a2d 100%); border-radius: 1rem;">
+                <div class="card-body p-4 p-md-5 text-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="display-5 fw-bold">🗳️ Pakistani E‑Voting Portal</h1>
+                            <p class="lead mb-0">Cast your vote securely for National and Provincial Assemblies.</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="badge bg-light text-success px-4 py-2 rounded-pill">🇵🇰 Your Voice Matters</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px;height:50px;">
+                        <i class="fas fa-vote-yea fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">National Assembly</h6>
+                        <h5 class="mb-0 fw-bold">{% if has_voted_na %}<span class="text-success">✅ Voted</span>{% else %}<span class="text-warning">⏳ Not Voted</span>{% endif %}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px;height:50px;">
+                        <i class="fas fa-landmark fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Provincial Assembly</h6>
+                        <h5 class="mb-0 fw-bold">{% if has_voted_pa %}<span class="text-success">✅ Voted</span>{% else %}<span class="text-warning">⏳ Not Voted</span>{% endif %}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px;height:50px;">
+                        <i class="fas fa-check-circle fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Status</h6>
+                        <h5 class="mb-0 fw-bold">{{ profile.is_verified|yesno:"Verified,Pending" }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px;height:50px;">
+                        <i class="fas fa-flag fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Province</h6>
+                        <h5 class="mb-0 fw-bold">{{ profile.assigned_na_constituency.province|default:"Not set" }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <a href="{% url 'voting_wizard_step' step=1 %}" class="btn btn-success btn-lg w-100 py-3 rounded-pill shadow-sm">
+                <i class="fas fa-vote-yea me-2"></i> Vote Now
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="{% url 'voting_results' %}" class="btn btn-outline-success btn-lg w-100 py-3 rounded-pill shadow-sm">
+                <i class="fas fa-chart-bar me-2"></i> View Results
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> How to Vote</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3 text-center">
+                            <span class="badge bg-success rounded-pill px-3 py-2">1</span>
+                            <p class="mt-2"><strong>Select Province</strong><br><small>Choose your registered province.</small></p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <span class="badge bg-success rounded-pill px-3 py-2">2</span>
+                            <p class="mt-2"><strong>Choose Assembly</strong><br><small>National or Provincial – only your assigned ones are active.</small></p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <span class="badge bg-success rounded-pill px-3 py-2">3</span>
+                            <p class="mt-2"><strong>Pick Constituency</strong><br><small>Your assigned constituency.</small></p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <span class="badge bg-success rounded-pill px-3 py-2">4</span>
+                            <p class="mt-2"><strong>Cast Vote</strong><br><small>Select your candidate.</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .btn-success { background-color: #1a7a3a; border-color: #1a7a3a; }
+    .btn-success:hover { background-color: #145a2a; border-color: #145a2a; }
+    .btn-outline-success { color: #1a7a3a; border-color: #1a7a3a; }
+    .btn-outline-success:hover { background-color: #1a7a3a; color: white; }
+    .card { border-radius: 0.75rem; }
+    .badge.bg-success { background-color: #1a7a3a !important; }
+</style>
+{% endblock %}

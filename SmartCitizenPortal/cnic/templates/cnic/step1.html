@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">🇵🇰 CNIC Application – Step 1 of 3</h4>
+        </div>
+        <div class="card-body">
+            <div class="progress mb-4" style="height:8px;">
+                <div class="progress-bar bg-success" style="width:33%;"></div>
+            </div>
+
+            <form method="post" action="{% url 'cnic_apply' %}">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+
+                <div class="row g-3">
+                    {% for field in form %}
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small">{{ field.errors }}</div>
+                            {% endif %}
+                            {% if field.help_text %}
+                                <small class="text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-success px-4 py-2 fw-bold">
+                        Next →
+                    </button>
+                    <a href="{% url 'cnic_dashboard' %}" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Uniform field styling */
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+        padding: 0.5rem 0.75rem;
+        background-color: #f8f9fa;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        background-color: #fff;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #1e3c2c;
+        margin-bottom: 0.25rem;
+    }
+    .card {
+        border-radius: 1rem;
+        border: none;
+    }
+    .btn-success {
+        background-color: #1a7a3a;
+        border-color: #1a7a3a;
+    }
+    .btn-success:hover {
+        background-color: #145a2a;
+        border-color: #145a2a;
+    }
+</style>
+{% endblock %}

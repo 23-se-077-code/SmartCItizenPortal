@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="position-relative overflow-hidden" style="background: linear-gradient(135deg, #1a5e1a 0%, #2d8a2d 100%); min-height: 100vh; display: flex; align-items: center;">
+        <div class="container text-center text-white py-5">
+            <div class="mb-4">
+                <span style="font-size: 6rem;">🇵🇰</span>
+            </div>
+            <h1 class="display-1 fw-bold" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.3);">Smart Citizen Portal</h1>
+            <p class="lead mb-4" style="font-size: 1.5rem; max-width: 800px; margin: 0 auto; text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">
+                Your one‑stop digital platform for government services – CNIC, Passport, Voting, Challan, and more.
+            </p>
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-4 mb-3">
+                    <a href="{% url 'login' %}" class="btn btn-light btn-lg w-100 py-3 rounded-pill shadow-lg" style="font-weight: 600; color: #1a5e1a;">
+                        <i class="fas fa-sign-in-alt me-2"></i> Login
+                    </a>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg w-100 py-3 rounded-pill shadow-lg" style="font-weight: 600; border-width: 2px;">
+                        <i class="fas fa-user-plus me-2"></i> Register
+                    </a>
+                </div>
+            </div>
+            <div class="mt-5">
+                <small class="text-white-50">Secure | Reliable | Citizen‑Focused</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

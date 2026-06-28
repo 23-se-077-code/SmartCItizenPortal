@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Passport Application – Step 7 of 7 (Final)</h3>
+    <div class="progress mb-4" style="height:25px;">
+        <div class="progress-bar bg-success" style="width:100%;">Complete</div>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>Please correct the following errors:</strong>
+        <ul>
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate action="{% url 'passport_apply_step' step=step %}">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="{{ step }}">
+
+        <!-- Live Photo -->
+        <div class="card p-3 mb-3">
+            <h5>Live Photo Capture</h5>
+            <video id="video" width="100%" autoplay style="border:2px solid #333; background:#000;"></video>
+            <div class="mt-2">
+                <button type="button" class="btn btn-dark" onclick="startCamera()">📷 Start Camera</button>
+                <button type="button" class="btn btn-success" onclick="capturePhoto()">Capture</button>
+                <button type="button" class="btn btn-danger" onclick="retakePhoto()">Retake</button>
+            </div>
+            <canvas id="canvas" style="display:none;"></canvas>
+            <input type="hidden" name="photo" id="photo_data">
+            <div class="mt-3">
+                <img id="preview" style="width:200px; display:none; border:3px solid #000;">
+            </div>
+        </div>
+
+        <!-- Fingerprint Capture (NEW) -->
+        <div class="card p-3 mb-3">
+            <h5>Fingerprint Capture (Camera)</h5>
+            <video id="fingerVideo" width="100%" autoplay style="border:2px solid #333; background:#000;"></video>
+            <div class="mt-2">
+                <button type="button" class="btn btn-dark" onclick="startFingerCamera()">📷 Start Camera</button>
+                <button type="button" class="btn btn-success" onclick="captureFingerprint()">Capture Fingerprint</button>
+                <button type="button" class="btn btn-danger" onclick="retakeFingerprint()">Retake</button>
+            </div>
+            <canvas id="fingerCanvas" style="display:none;"></canvas>
+            <input type="hidden" name="fingerprint" id="fingerprint_data">
+            <div class="mt-3">
+                <img id="fingerPreview" style="width:200px; display:none; border:3px solid #000;">
+            </div>
+        </div>
+
+        <!-- Signature -->
+        <div class="card p-3 mb-3">
+            <h5>Digital Signature</h5>
+            <canvas id="signatureCanvas" width="400" height="150" style="border:2px solid #333; cursor:crosshair;"></canvas>
+            <div class="mt-2">
+                <button type="button" class="btn btn-secondary" onclick="clearSignature()">Clear</button>
+                <button type="button" class="btn btn-primary" onclick="saveSignature()">Save Signature</button>
+            </div>
+            <input type="hidden" name="signature" id="signature_data">
+            <img id="signaturePreview" style="width:200px; display:none; border:1px solid #000; margin-top:10px;">
+        </div>
+
+        <!-- Fingerprints (upload alternative) -->
+        <div class="card p-3 mb-3">
+            <h5>Fingerprint Upload (alternative to camera)</h5>
+            <div class="row">
+                <div class="col-md-6">{{ form.left_thumb.label_tag }} {{ form.left_thumb }}</div>
+                <div class="col-md-6">{{ form.right_thumb.label_tag }} {{ form.right_thumb }}</div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" name="prev" class="btn btn-secondary">Previous</button>
+            <button type="submit" class="btn btn-success">✅ Submit Application</button>
+            <a href="{% url 'passport_dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+// -------------------- CAMERA (FACE) --------------------
+let stream;
+function startCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(s => { stream = s; document.getElementById('video').srcObject = stream; })
+        .catch(() => alert('Camera access denied. Allow camera permissions.'));
+}
+function capturePhoto() {
+    let video = document.getElementById('video');
+    let canvas = document.getElementById('canvas');
+    let preview = document.getElementById('preview');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    let ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+    let data = canvas.toDataURL('image/jpeg', 0.95);
+    document.getElementById('photo_data').value = data;
+    preview.src = data;
+    preview.style.display = 'block';
+}
+function retakePhoto() {
+    document.getElementById('photo_data').value = '';
+    document.getElementById('preview').style.display = 'none';
+}
+
+// -------------------- FINGERPRINT CAMERA --------------------
+let fingerStream;
+function startFingerCamera() {
+    if (fingerStream) {
+        fingerStream.getTracks().forEach(track => track.stop());
+    }
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(s => {
+            fingerStream = s;
+            document.getElementById('fingerVideo').srcObject = s;
+        })
+        .catch(() => alert('Camera access denied. Allow camera permissions.'));
+}
+function captureFingerprint() {
+    let video = document.getElementById('fingerVideo');
+    let canvas = document.getElementById('fingerCanvas');
+    let preview = document.getElementById('fingerPreview');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    let ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+    let data = canvas.toDataURL('image/jpeg', 0.95);
+    document.getElementById('fingerprint_data').value = data;
+    preview.src = data;
+    preview.style.display = 'block';
+}
+function retakeFingerprint() {
+    document.getElementById('fingerprint_data').value = '';
+    document.getElementById('fingerPreview').style.display = 'none';
+}
+
+// -------------------- SIGNATURE --------------------
+let canvas = document.getElementById('signatureCanvas');
+let ctx = canvas.getContext('2d');
+let drawing = false;
+canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+canvas.addEventListener('mousemove', (e) => { if (drawing) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } });
+canvas.addEventListener('mouseup', () => { drawing = false; });
+canvas.addEventListener('mouseleave', () => { drawing = false; });
+
+function clearSignature() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.getElementById('signature_data').value = '';
+    document.getElementById('signaturePreview').style.display = 'none';
+}
+function saveSignature() {
+    let data = canvas.toDataURL('image/png');
+    document.getElementById('signature_data').value = data;
+    let preview = document.getElementById('signaturePreview');
+    preview.src = data;
+    preview.style.display = 'block';
+    alert('Signature saved.');
+}
+
+// Auto-start cameras when page loads
+window.onload = function() {
+    startCamera();
+    startFingerCamera();
+};
+</script>
+{% endblock %}

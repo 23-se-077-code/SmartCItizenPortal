@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-3">
+        <h3 class="text-success fw-bold">🛂 Passport Application – Step 2 of 7</h3>
+        <div class="progress mx-auto" style="height:8px; max-width:400px;">
+            <div class="progress-bar bg-success" style="width:29%;"></div>
+        </div>
+        <small class="text-muted">CNIC & Identity</small>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>Please correct the following errors:</strong>
+        <ul class="mb-0">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'passport_apply_step' step=step %}">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="{{ step }}">
+
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">🪪 CNIC & Identity Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.cnic.label }}</label>
+                        {{ form.cnic }}
+                        <small class="text-muted">Format: 12345-1234567-1</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.cnic_issue_date.label }}</label>
+                        {{ form.cnic_issue_date }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.cnic_expiry_date.label }}</label>
+                        {{ form.cnic_expiry_date }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.family_registration_number.label }}</label>
+                        {{ form.family_registration_number }}
+                        <small class="text-muted">Optional</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{{ form.b_form_number.label }}</label>
+                        {{ form.b_form_number }}
+                        <small class="text-muted">Optional</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <button type="submit" name="prev" class="btn btn-secondary px-4">← Previous</button>
+            <div>
+                <button type="submit" name="next" class="btn btn-success px-4 fw-bold">Next →</button>
+                <a href="{% url 'passport_dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+<style>/* same as step1 */</style>
+{% endblock %}
